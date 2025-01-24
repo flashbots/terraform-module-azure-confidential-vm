@@ -55,9 +55,7 @@ Refer to the [examples](./examples/) directory for detailed configuration exampl
 
 | Name | Description |
 |------|-------------|
-| security\_group\_ids | The IDs of the security groups |
-| vm\_ids | The IDs of the virtual machines |
-| vm\_public\_ips | The public IP addresses of the virtual machines |
+| vm\_details | Virtual Machine details |
 
 ## Note for contributors
 Make sure to use [terraform-docs](https://github.com/terraform-docs/terraform-docs) to generate the configuration parameters of the module (provider requirements, input variables, outputs) should you update them.
