@@ -32,7 +32,7 @@ resource "azurerm_subnet" "example" {
 
 # Create a storage account for VM images
 resource "azurerm_storage_account" "example" {
-  name                     = "confvmimages"
+  name                     = "confvmimagestest"
   resource_group_name      = azurerm_resource_group.example.name
   location                 = azurerm_resource_group.example.location
   account_tier             = "Standard"
@@ -45,7 +45,36 @@ resource "azurerm_storage_container" "example" {
   container_access_type = "private"
 }
 
-module "confidential_vm" {
+locals {
+  vms = {
+    confidential-vm = {
+      image_version       = "1.0.0"
+      size                = "Standard_EC2es_v5"
+      secure_boot_enabled = false
+      vtpm_enabled        = true
+      os_disk_caching     = "ReadOnly"
+      os_disk_size_gb     = 16
+      data_disk_size_gb   = 256
+      subnet_id           = azurerm_subnet.example.id
+      security_group_ingress_ranges = {
+        "  443 | tcp | orderflow reception" = ["*"]
+        " 3535 | tcp | system-api"          = ["*"]
+        " 5544 | tcp | orderflow reception" = ["*"]
+        " 7936 | tcp | cvm proxy server"    = ["*"]
+        " 9000 | tcp | lighthouse p2p"      = ["*"]
+        " 9000 | udp | lighthouse p2p"      = ["*"]
+        "30303 | tcp | reth p2p"            = ["*"]
+        "30303 | udp | reth p2p"            = ["*"]
+        "40192 | tcp | ssh"                 = ["*"]
+      }
+      security_group_egress_ranges = {
+        "* | * | all" = ["*"]
+      }
+    }
+  }
+}
+
+module "cvm" {
   source = "../"
 
   location       = azurerm_resource_group.example.location
@@ -68,39 +97,10 @@ module "confidential_vm" {
     }
   ]
 
-  # VM configuration
-  vm_name          = "confidential-vm"
-  vm_size          = "Standard_EC2es_v5" # Intel TDX capable size
-  vm_image_version = "1.0.0"
-
-  # Disk configuration
-  data_disk_size_gb = 256
-
-  # Network configuration
-  subnet_id = azurerm_subnet.example.id
-
-  # Security group rules
-  security_group_ingress_ranges = {
-    "  443 | tcp | orderflow reception" = ["*"]
-    " 3535 | tcp | system-api"          = ["*"]
-    " 5544 | tcp | orderflow reception" = ["*"]
-    " 7936 | tcp | cvm proxy server"    = ["*"]
-    " 9000 | tcp | lighthouse p2p"      = ["*"]
-    " 9000 | udp | lighthouse p2p"      = ["*"]
-    "30303 | tcp | reth p2p"            = ["*"]
-    "30303 | udp | reth p2p"            = ["*"]
-    "40192 | tcp | ssh"                 = ["*"]
-  }
-
-  security_group_egress_ranges = {
-    "* | * | all" = ["*"]
-  }
+  # VMs configuration
+  vms = local.vms
 }
 
-output "vm_ip_address" {
-  value = module.confidential_vm.vm_public_ip
-}
-
-output "vm_id" {
-  value = module.confidential_vm.vm_id
+output "vm_details" {
+  value = module.cvm.vm_details
 }

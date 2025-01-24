@@ -22,7 +22,7 @@ resource "azurerm_linux_virtual_machine" "cvm" {
     security_encryption_type = "VMGuestStateOnly"
   }
 
-  source_image_id = azurerm_shared_image_version.this[var.vm_image_version].id
+  source_image_id = var.source_image_id
 }
 
 resource "azurerm_managed_disk" "data" {
@@ -70,7 +70,7 @@ resource "azurerm_public_ip" "this" {
 }
 
 module "azure_security_group_cvm" {
-  source = "./modules/azure-security-group"
+  source = "../azure-security-group"
 
   name = var.vm_name
 
