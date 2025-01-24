@@ -44,3 +44,29 @@ resource "azurerm_shared_image_version" "this" {
     storage_account_type   = "Standard_LRS"
   }
 }
+
+module "cvm" {
+  source = "./modules/azure-confidential-vm"
+
+  for_each = var.vms
+
+  location       = var.location
+  resource_group = var.resource_group
+
+  vm_name                            = each.key
+  source_image_id                    = azurerm_shared_image_version.this[each.value.image_version].id
+  vm_size                            = each.value.size
+  vm_secure_boot_enabled             = each.value.secure_boot_enabled
+  vm_vtpm_enabled                    = each.value.vtpm_enabled
+  os_disk_caching                    = each.value.os_disk_caching
+  os_disk_size_gb                    = each.value.os_disk_size_gb
+  data_disk_size_gb                  = each.value.data_disk_size_gb
+  data_disk_storage_account_type     = each.value.data_disk_storage_account_type
+  data_disk_performance_plus_enabled = each.value.data_disk_performance_plus_enabled
+  data_disk_tier                     = each.value.data_disk_tier
+  data_disk_caching_type             = each.value.data_disk_caching_type
+  data_disk_lun                      = each.value.data_disk_lun
+  subnet_id                          = each.value.subnet_id
+  security_group_egress_ranges       = each.value.security_group_egress_ranges
+  security_group_ingress_ranges      = each.value.security_group_ingress_ranges
+}
