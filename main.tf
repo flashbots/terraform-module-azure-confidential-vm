@@ -41,7 +41,7 @@ resource "azurerm_shared_image_version" "this" {
   target_region {
     name                   = azurerm_shared_image.this.location
     regional_replica_count = 1
-    storage_account_type   = "Standard_LRS"
+    storage_account_type   = "Premium_LRS"
   }
 }
 
