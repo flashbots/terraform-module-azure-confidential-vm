@@ -36,6 +36,13 @@ resource "azurerm_managed_disk" "data" {
   storage_account_type     = var.data_disk_storage_account_type
   performance_plus_enabled = var.data_disk_size_gb >= 512 ? var.data_disk_performance_plus_enabled : false
   tier                     = var.data_disk_tier
+
+  lifecycle {
+    ignore_changes = [
+      source_resource_id,
+      create_option
+     ]
+  }
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "cvm_data" {
