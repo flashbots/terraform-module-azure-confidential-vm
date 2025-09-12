@@ -23,7 +23,7 @@ variable "vm_name" {
 variable "vm_size" {
   type        = string
   description = "Azure VM size/type"
-  default     = "Standard_EC16es_v5"
+  default     = "Standard_EC32es_v6"
   nullable    = false
 }
 
